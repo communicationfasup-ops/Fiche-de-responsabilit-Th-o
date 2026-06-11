@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAsup' — Espace de travail</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+/* ── Reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#F3F4F6;color:#111827;font-size:13.5px;line-height:1.75}
+
+/* ── App chrome ── */
+#app-header{background:#fff;border-bottom:1px solid #E5E7EB;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:56px}
+.app-brand{display:flex;align-items:center;gap:10px}
+.app-logo{width:28px;height:28px;background:#EEEDFE;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#3C3489}
+.app-title{font-size:14px;font-weight:700;color:#111827}
+.app-sub{font-size:11.5px;color:#9CA3AF;margin-left:6px}
+
+/* Tabs */
+#tabs{display:flex;gap:2px;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:9px;padding:3px}
+.tab{padding:6px 16px;border-radius:6px;font-size:12.5px;font-weight:600;color:#6B7280;cursor:pointer;border:none;background:transparent;transition:all .15s}
+.tab.active{background:#fff;color:#111827;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tab:hover:not(.active){color:#374151}
+
+/* Actions */
+#actions{display:flex;align-items:center;gap:8px}
+.btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #E5E7EB;display:flex;align-items:center;gap:6px;transition:all .15s;background:#fff;color:#374151}
+.btn:hover{background:#F9FAFB}
+.btn.edit-active{background:#EEEDFE;color:#3C3489;border-color:#C4C0F8}
+.btn-print{background:#111827;color:#fff;border-color:#111827}
+.btn-print:hover{background:#1F2937}
+.btn-new{background:#EAF3DE;color:#27500A;border-color:#C6E0A8}
+.btn-new:hover{background:#D9ECC8}
+
+/* Month nav */
+#month-nav{display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid #E5E7EB;padding:10px 28px}
+.month-btn{width:28px;height:28px;border-radius:6px;border:1px solid #E5E7EB;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6B7280}
+.month-btn:hover{background:#F3F4F6}
+#month-label{font-size:13.5px;font-weight:700;color:#111827;min-width:120px;text-align:center}
+
+/* Content */
+#content{padding:24px 28px;max-width:1100px;margin:0 auto}
+
+/* ── Design system ── */
+.card{border:0.5px solid #E5E7EB;border-radius:12px;overflow:hidden;break-inside:avoid;margin-bottom:14px}
+.card-header{padding:11px 16px;display:flex;align-items:center;gap:10px;border-bottom:0.5px solid #E5E7EB;background:#F9FAFB}
+.card-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.card-title{font-size:14px;font-weight:700;color:#111827;margin:0}
+.card-body{padding:14px 17px}
+.divider{height:0.5px;background:#E5E7EB;margin:10px 0}
+.sublabel{font-size:10.5px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin:0 0 5px}
+
+.doc-header{border:0.5px solid #E5E7EB;border-radius:12px;padding:16px 22px;margin-bottom:18px;background:#F9FAFB}
+.doc-badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:7px;display:inline-block;margin-bottom:8px;background:#EEEDFE;color:#3C3489}
+.doc-title{font-size:24px;font-weight:800;color:#111827;margin:0 0 3px}
+.doc-sub{font-size:13px;color:#6B7280;margin:0}
+.doc-meta{display:flex;gap:20px;margin-top:10px}
+.doc-meta-item{font-size:11.5px;color:#9CA3AF;display:flex;align-items:center;gap:5px}
+
+/* Row / item */
+.item-row{display:flex;align-items:flex-start;gap:9px;padding:6px 0;font-size:13px;color:#374151;border-bottom:0.5px solid #E5E7EB;line-height:1.65;position:relative}
+.item-row:last-child{border-bottom:none}
+.badge{font-size:10.5px;padding:3px 9px;border-radius:6px;white-space:nowrap;flex-shrink:0;margin-top:3px;font-weight:600}
+.dot{color:#9CA3AF;flex-shrink:0;margin-top:4px;font-size:14px}
+.item-text{flex:1;min-width:0}
+
+/* Tags */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:6px}
+
+/* Grid layouts */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.six-col{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.ac-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* KPI cards */
+.kpi-card{background:#F9FAFB;border-radius:10px;padding:22px 14px;text-align:center}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF}
+.kpi-value{font-size:32px;font-weight:800;margin:6px 0 4px;line-height:1}
+.kpi-sub{font-size:11px;color:#6B7280;margin-top:6px;line-height:1.5}
+.kpi-target{font-size:10.5px;color:#9CA3AF;margin-bottom:4px}
+.kpi-actual-input{width:100%;text-align:center;border:1.5px solid #E5E7EB;border-radius:7px;padding:6px;font-size:20px;font-weight:800;color:#111827;background:#fff;margin:6px 0 4px}
+.kpi-actual-input:focus{outline:none;border-color:#3C3489}
+
+/* Mini OBJ grid */
+.obj-card{background:#F9FAFB;border-radius:9px;padding:10px 14px}
+.obj-label{font-size:10.5px;font-weight:700;color:#9CA3AF;margin:0 0 3px;text-transform:uppercase;letter-spacing:.04em}
+.obj-value{font-size:13px;font-weight:600;color:#111827;margin:0;line-height:1.5}
+
+/* AC block */
+.ac-block{border:0.5px solid #E5E7EB;border-radius:9px;overflow:hidden}
+.ac-header{padding:7px 12px;font-size:12px;font-weight:700;border-bottom:0.5px solid #E5E7EB}
+.ac-body{padding:6px 12px}
+
+/* ── Edit mode ── */
+body.edit-mode .editable{cursor:text;outline:none}
+body.edit-mode .editable:hover{background:rgba(237,236,254,.3);border-radius:4px}
+body.edit-mode .editable:focus{background:rgba(237,236,254,.5);border-radius:4px;outline:2px solid rgba(60,52,137,.25)}
+body.edit-mode .del-btn{display:flex !important}
+body.edit-mode .add-row{display:flex !important}
+.del-btn{display:none;width:18px;height:18px;border-radius:4px;border:none;background:#FCEBEB;color:#791F1F;font-size:11px;font-weight:700;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px}
+.del-btn:hover{background:#F5C6C6}
+.add-row{display:none;align-items:center;gap:7px;padding:5px 0;color:#9CA3AF;font-size:12px;cursor:pointer;border:none;background:none;width:100%}
+.add-row:hover{color:#3C3489}
+.edit-mode-indicator{position:fixed;bottom:20px;right:20px;background:#3C3489;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;display:none;align-items:center;gap:6px;z-index:200}
+body.edit-mode .edit-mode-indicator{display:flex}
+
+/* ── Tabs ── */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Résultats spécifiques ── */
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.result-card{border:0.5px solid #E5E7EB;border-radius:12px;padding:16px 18px;background:#fff}
+.rc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;margin-bottom:4px}
+.rc-target{font-size:11.5px;color:#6B7280;margin-bottom:8px}
+.rc-actual{font-size:28px;font-weight:800;color:#111827}
+.rc-bar{height:6px;background:#F3F4F6;border-radius:3px;margin-top:8px;overflow:hidden}
+.rc-fill{height:100%;border-radius:3px;transition:width .4s}
+.rc-note{font-size:11px;color:#6B7280;margin-top:6px}
+.rc-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;display:inline-block;margin-top:4px}
+
+/* Bilan textarea */
+.bilan-area{width:100%;min-height:100px;border:0.5px solid #E5E7EB;border-radius:10px;padding:13px 16px;font-family:inherit;font-size:13.5px;line-height:1.75;resize:vertical;color:#374151}
+.bilan-area:focus{outline:none;border-color:#3C3489}
+
+/* ── Print ── */
+@media print{
+  #app-header,#month-nav,#actions,.del-btn,.add-row,.edit-mode-indicator,#tabs-bar{display:none!important}
+  body{background:#fff}
+  #content{padding:0;max-width:none}
+  .tab-panel{display:block!important}
+  .tab-panel:not(.active){display:none!important}
+  @page{size:A4 landscape;margin:14mm 18mm}
+  .card,.doc-header{break-inside:avoid}
+  .two-col,.three-col{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- App Header -->
+<div id="app-header">
+  <div class="app-brand">
+    <div class="app-logo">FA</div>
+    <span class="app-title">FAsup' Espace de travail</span>
+    <span class="app-sub">Théo Botella · Pôle Communication &amp; Acquisition</span>
+  </div>
+  <div id="tabs-bar">
+    <div id="tabs">
+      <button class="tab active" onclick="switchTab('fiche')"><i class="ti ti-id-badge-2"></i> Fiche de responsabilité</button>
+      <button class="tab" onclick="switchTab('roadmap')"><i class="ti ti-map"></i> Feuille de route</button>
+      <button class="tab" onclick="switchTab('results')"><i class="ti ti-chart-bar"></i> Résultats du mois</button>
+    </div>
+  </div>
+  <div id="actions">
+    <button class="btn" id="edit-btn" onclick="toggleEdit()"><i class="ti ti-pencil"></i> <span id="edit-label">Modifier</span></button>
+    <button class="btn btn-print" onclick="window.print()"><i class="ti ti-printer"></i> Imprimer / PDF</button>
+  </div>
+</div>
+
+<!-- Month nav (roadmap + results only) -->
+<div id="month-nav" style="display:none">
+  <button class="month-btn" onclick="changeMonth(-1)">&#8592;</button>
+  <span id="month-label">Juin 2026</span>
+  <button class="month-btn" onclick="changeMonth(1)">&#8594;</button>
+  <button class="btn btn-new" style="margin-left:12px" onclick="newMonth()"><i class="ti ti-plus"></i> Nouveau mois</button>
+  <span id="autosave-indicator" style="font-size:11px;color:#9CA3AF;margin-left:12px;display:none">✓ Sauvegardé</span>
+</div>
+
+<div id="content">
+
+<!-- ════════════════════════════════════════════
+     TAB 1 — FICHE DE RESPONSABILITÉ
+════════════════════════════════════════════ -->
+<div id="tab-fiche" class="tab-panel active">
+
+  <div class="doc-header">
+    <div class="doc-badge">Fiche de responsabilité</div>
+    <h1 class="doc-title editable" contenteditable="false">Théo Botella</h1>
+    <p class="doc-sub editable" contenteditable="false">Pôle Communication &amp; Acquisition — FAsup'</p>
+    <div class="doc-meta">
+      <span class="doc-meta-item"><i class="ti ti-calendar"></i> <span class="editable" contenteditable="false">À rendre le 12 juin 2026</span></span>
+      <span class="doc-meta-item"><i class="ti ti-building"></i> Siège</span>
+    </div>
+  </div>
+
+  <!-- Section 1 pleine largeur -->
+  <div style="margin-bottom:14px">
+    <div class="card-header" style="background:#F9FAFB;border:0.5px solid #E5E7EB;border-radius:9px;margin-bottom:10px">
+      <div class="card-num" style="background:#EEEDFE;color:#3C3489">1</div>
+      <p class="card-title">Objectifs du pôle</p>
+    </div>
+    <div style="border:0.5px solid #E5E7EB;border-radius:12px;padding:14px 18px;margin-bottom:10px">
+      <p class="editable" contenteditable="false" style="font-size:13.5px;color:#374151;line-height:1.75">Développer l'acquisition d'étudiants candidats pour le réseau FAsup' via des actions centralisées de communication digitale, de prospection téléphonique et d'organisation d'événements, en support direct aux centres.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div class="obj-card"><p class="obj-label">Webinaires</p><p class="obj-value editable" contenteditable="false">10 sessions · 200 prospects · avant le 15 sept. 2026</p></div>
+      <div class="obj-card"><p class="obj-label">Appels</p><p class="obj-value editable" contenteditable="false">15 RDV/semaine · dès le 16 juin 2026</p></div>
+      <div class="obj-card"><p class="obj-label">Médias</p><p class="obj-value editable" contenteditable="false">4 apparitions Hugo &amp; Axel · avant sept. 2026</p></div>
+    </div>
+  </div>
+
+  <!-- Section 2 pleine largeur en dessous -->
+  <div style="margin-bottom:18px">
+    <div class="card-header" style="background:#F9FAFB;border:0.5px solid #E5E7EB;border-radius:9px;margin-bottom:10px">
+      <div class="card-num" style="background:#EEEDFE;color:#3C3489">2</div>
+      <p class="card-title">Sujets d'intervention</p>
+    </div>
+    <div style="border:0.5px solid #E5E7EB;border-radius:12px;padding:14px 18px">
+      <p class="editable" contenteditable="false" style="font-size:13.5px;color:#374151;line-height:1.75">Gestion et animation des comptes LinkedIn (Hugo Martin / Axel Ober) · Prise de rendez-vous étudiants par appels sur les viviers HubSpot des centres · Organisation et promotion des webinaires d'acquisition · Prospection médias pour Hugo et Axel (podcasts, radio, presse) · Collaboration HubSpot &amp; automatisation email avec Lorenzo · Gestion des demandes et supports des centres</p>
+    </div>
+  </div>
+
+  <div class="card-header" style="background:#F9FAFB;border:0.5px solid #E5E7EB;border-radius:9px;margin-bottom:14px">
+    <div class="card-num" style="background:#EEEDFE;color:#3C3489">3</div>
+    <p class="card-title">Détail des sujets et répartition des responsabilités</p>
+  </div>
+
+  <!-- Sujet 1 LinkedIn -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><i class="ti ti-brand-linkedin" style="font-size:15px;color:#6B7280"></i><span style="font-size:14px;font-weight:700;color:#111827">Sujet 1 — Gestion LinkedIn</span></div>
+    <div class="card-body">
+      <div class="two-col" style="gap:18px">
+        <div>
+          <div style="margin-bottom:10px"><p class="sublabel">1. Objectif de fond</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Renforcer la visibilité de FAsup', d'Hugo et d'Axel pour attirer des étudiants candidats et des entreprises partenaires.</p></div>
+          <div class="divider"></div>
+          <div><p class="sublabel">2. Objectif SMART</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">3 publications originales par semaine sur chaque compte + 2 reposts à valeur ajoutée · 100 à 150 demandes de connexion par semaine par compte · 0 message sans réponse · offres d'emploi gratuites publiées en continu — jusqu'au 30 septembre 2026.</p></div>
+        </div>
+        <div>
+          <div style="margin-bottom:10px">
+            <p class="sublabel">4. Répartition</p>
+            <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Théo</span><span class="item-text editable" contenteditable="false">Création, publication, engagement, gestion des deux comptes</span></div>
+            <div class="item-row"><span class="badge" style="background:#E1F5EE;color:#085041">Hugo / Axel</span><span class="item-text editable" contenteditable="false">Validation des contenus les impliquant personnellement</span></div>
+            <div class="item-row"><span class="badge" style="background:#F1EFE8;color:#444441">Direction</span><span class="item-text editable" contenteditable="false">Fourniture des informations sur les postes à pourvoir</span></div>
+            <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Contrôle</span><span class="item-text editable" contenteditable="false">Aucun contrôle formalisé — reporting mensuel auto-géré</span></div>
+          </div>
+          <div class="divider"></div>
+          <div style="margin-bottom:8px"><p class="sublabel">5. Outils</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151">LinkedIn (comptes Hugo Martin / Axel Ober)</p></div>
+          <div class="divider"></div>
+          <div><p class="sublabel">6. CR mensuel</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151">Croissance abonnés, taux d'engagement, candidatures reçues, connexions acceptées.</p></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <p class="sublabel" style="margin-bottom:8px">3. Missions par compte</p>
+      <div class="ac-grid">
+        <div class="ac-block">
+          <div class="ac-header" style="background:#E1F5EE;color:#085041"><i class="ti ti-user" style="font-size:12px;margin-right:4px"></i>Axel Ober</div>
+          <div class="ac-body">
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">3 publications originales/semaine (article, visuel, post de fond)</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">2 reposts/semaine avec commentaires valorisant les valeurs de FAsup'</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">100 à 150 demandes de connexion/semaine (entreprises recrutant des alternants)</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Répondre à tous les messages — sourcing proactif de candidats passifs</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Offres gratuites en cycle : publier → 25 candidatures max → retirer → republier</span></div>
+          </div>
+        </div>
+        <div class="ac-block">
+          <div class="ac-header" style="background:#EEEDFE;color:#3C3489"><i class="ti ti-user" style="font-size:12px;margin-right:4px"></i>Hugo Martin</div>
+          <div class="ac-body">
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">3 publications originales/semaine (article, visuel, post de fond)</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">2 reposts/semaine avec commentaires valorisant les valeurs de FAsup'</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">100 à 150 demandes de connexion/semaine (entreprises recrutant des alternants)</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Répondre à tous les messages — sourcing proactif de candidats passifs</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Offres gratuites en cycle : publier → 25 candidatures max → retirer → republier</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sujets 2 & 3 -->
+  <div class="two-col" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-header"><i class="ti ti-phone-call" style="font-size:15px;color:#6B7280"></i><span style="font-size:14px;font-weight:700;color:#111827">Sujet 2 — Prise de rendez-vous étudiants</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:10px"><p class="sublabel">1. Objectif de fond</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Convertir les leads dormants des centres en entretiens qualifiés pour accélérer le remplissage des promotions.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">2. Objectif SMART</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Réserver 15 entretiens par semaine pour les centres à viviers faibles (assignés par Clément), dès le 16 juin 2026. Volume estimé : 2 à 3 demi-journées d'appels par semaine.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">3. Processus</p>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Clément assigne les centres cibles chaque semaine et informe leurs directeurs en amont</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Appels sur les leads HubSpot du centre ciblé (statuts "messagerie", "pas intéressé") + leads Parcoursup</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Pose des RDV dans l'agenda du directeur concerné + mise à jour des statuts dans HubSpot</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">4. Répartition</p>
+          <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Théo</span><span class="item-text editable" contenteditable="false">Appels, prise de RDV, mise à jour HubSpot</span></div>
+          <div class="item-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Clément</span><span class="item-text editable" contenteditable="false">Attribution hebdomadaire des centres + information des directeurs</span></div>
+          <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Directeurs</span><span class="item-text editable" contenteditable="false">Qualification et conduite des entretiens posés</span></div>
+          <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Contrôle</span><span class="item-text editable" contenteditable="false">Rapport hebdomadaire : appels passés, RDV pris, taux de transformation</span></div>
+        </div>
+        <div class="divider"></div>
+        <p class="sublabel">5. Outils</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151">HubSpot · Téléphone · Agenda partagé avec les directeurs</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-presentation" style="font-size:15px;color:#6B7280"></i><span style="font-size:14px;font-weight:700;color:#111827">Sujet 3 — Webinaires d'acquisition</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:10px"><p class="sublabel">1. Objectif de fond</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Générer de nouveaux leads étudiants qualifiés hors du réseau existant des centres.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">2. Objectif SMART</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Organiser 10 webinaires avant le 15 septembre 2026, avec une moyenne de 20 participants par session = 200 prospects. Rythme : 1 à 2 sessions/semaine.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">3. Missions</p>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Planifier le calendrier des 10 webinaires et définir les thématiques</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Lancer la promotion 3 à 4 semaines avant chaque session — Landing page, ads, LinkedIn, email HubSpot, vidéo avec Sylvain</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Co-animer les sessions avec Hugo ou Axel</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Traiter et qualifier les leads générés dans HubSpot après chaque webinaire</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">4. Répartition</p>
+          <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Théo</span><span class="item-text editable" contenteditable="false">Planification, promotion, coordination, suivi des leads</span></div>
+          <div class="item-row"><span class="badge" style="background:#F1EFE8;color:#444441">Sylvain</span><span class="item-text editable" contenteditable="false">Vidéos de promotion de chaque webinaire</span></div>
+          <div class="item-row"><span class="badge" style="background:#E1F5EE;color:#085041">Hugo / Axel</span><span class="item-text editable" contenteditable="false">Animation des sessions, validation des thématiques</span></div>
+          <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Contrôle</span><span class="item-text editable" contenteditable="false">Bilan par webinaire : inscrits, présents, leads qualifiés</span></div>
+        </div>
+        <div class="divider"></div>
+        <p class="sublabel">5. Outils</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151">Plateforme webinaire (à définir) · HubSpot · LinkedIn · Canva</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sujets 4 & 5 -->
+  <div class="two-col" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-header"><i class="ti ti-microphone" style="font-size:15px;color:#6B7280"></i><span style="font-size:14px;font-weight:700;color:#111827">Sujet 4 — Apparitions médias</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:10px"><p class="sublabel">1. Objectif de fond</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Développer la notoriété de FAsup', d'Hugo et d'Axel comme experts de l'orientation et de l'alternance, au-delà du réseau existant.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">2. Objectif SMART</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Obtenir 4 apparitions médiatiques (podcasts, radio, presse) pour Hugo et Axel d'ici septembre 2026. Priorité aux opportunités gratuites. Focus sur l'expérience entrepreneuriale.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">3. Missions</p>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Identifier et lister les médias cibles pour Hugo et Axel</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Contacter les médias avec un pitch personnalisé adapté à chaque profil + relances</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Préparer Hugo et Axel pour chaque intervention + suivi du tableau de bord médias</span></div>
+        </div>
+        <div class="divider"></div>
+        <div><p class="sublabel">4. Répartition</p>
+          <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Théo</span><span class="item-text editable" contenteditable="false">Prospection, coordination, préparation des pitchs, suivi</span></div>
+          <div class="item-row"><span class="badge" style="background:#E1F5EE;color:#085041">Hugo / Axel</span><span class="item-text editable" contenteditable="false">Validation des médias ciblés, intervention</span></div>
+          <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Contrôle</span><span class="item-text editable" contenteditable="false">Tableau mensuel : contactés / en discussion / confirmés / réalisés</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-settings-automation" style="font-size:15px;color:#6B7280"></i><span style="font-size:14px;font-weight:700;color:#111827">Sujet 5 — HubSpot &amp; automatisation email</span></div>
+      <div class="card-body">
+        <div style="margin-bottom:10px"><p class="sublabel">1. Objectif de fond</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Faire gagner du temps aux centres et réactiver les leads dormants via des séquences email automatisées.</p></div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">2. Missions</p>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Collaboration avec Lorenzo pour concevoir et déployer les séquences d'automatisation email</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Définition des objectifs, du contenu et de la stratégie de chaque campagne</span></div>
+          <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Tests, optimisation et suivi des performances</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-bottom:10px"><p class="sublabel">3. Répartition</p>
+          <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Théo</span><span class="item-text editable" contenteditable="false">Définition des objectifs, contenus et stratégie des campagnes</span></div>
+          <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Lorenzo</span><span class="item-text editable" contenteditable="false">Coordination technique et mise en place dans HubSpot</span></div>
+        </div>
+        <div class="divider"></div>
+        <p class="sublabel">4. Outils</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151">HubSpot (CRM, automatisation, email)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sujet 6 -->
+  <div class="card">
+    <div class="card-header"><i class="ti ti-tools" style="font-size:15px;color:#6B7280"></i><span style="font-size:14px;font-weight:700;color:#111827">Sujet 6 — Gestion des demandes et supports des centres</span></div>
+    <div class="card-body">
+      <div class="two-col" style="gap:18px">
+        <div>
+          <div style="margin-bottom:10px"><p class="sublabel">1. Objectif de fond</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Soutenir les centres dans leur communication locale et leur image de marque pour renforcer leur attractivité et leur professionnalisme sur le terrain.</p></div>
+          <div class="divider"></div>
+          <div style="margin-bottom:10px"><p class="sublabel">2. Objectif SMART</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151;line-height:1.75">Traiter 100% des demandes entrantes dans un délai maximum de J+5. Déployer les projets structurants selon les échéances définies.</p></div>
+          <div class="divider"></div>
+          <div><p class="sublabel">3. Missions</p>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Réceptionner, prioriser et traiter les demandes de supports visuels et communication</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Aide à la création et à la mise à jour des formulaires</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Coordination de la signalétique des centres — brief et suivi Lorenzo</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Organisation de la participation aux salons étudiants</span></div>
+            <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Lancement et coordination du pull FAsup' — brief fournisseur, validation maquette, logistique</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="margin-bottom:10px"><p class="sublabel">4. Répartition</p>
+            <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Théo</span><span class="item-text editable" contenteditable="false">Réception des demandes, brief, coordination, validation finale</span></div>
+            <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Lorenzo</span><span class="item-text editable" contenteditable="false">Exécution design (signalétique, kakémono, affiches, visuels salons)</span></div>
+            <div class="item-row"><span class="badge" style="background:#F1EFE8;color:#444441">Directeurs</span><span class="item-text editable" contenteditable="false">Remontée des besoins avec délais et contexte</span></div>
+            <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Contrôle</span><span class="item-text editable" contenteditable="false">Suivi des demandes en cours + bilan mensuel des livrables produits</span></div>
+          </div>
+          <div class="divider"></div>
+          <p class="sublabel">5. Outils</p><p class="editable" contenteditable="false" style="font-size:13px;color:#374151">Tableau de suivi partagé (Notion / Airtable) · Canva · Tally ou équivalent · Prestataires extérieurs pour le pull et la signalétique</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 2 — FEUILLE DE ROUTE
+════════════════════════════════════════════ -->
+<div id="tab-roadmap" class="tab-panel" data-save-key="roadmap">
+
+  <div class="doc-header">
+    <div class="doc-badge">Feuille de route mensuelle</div>
+    <h1 class="doc-title" id="roadmap-title">Juin 2026 — Théo Botella</h1>
+    <p class="doc-sub editable" contenteditable="false">Pôle Communication &amp; Acquisition — FAsup'</p>
+    <div class="doc-meta">
+      <span class="doc-meta-item"><i class="ti ti-calendar"></i> <span class="editable" contenteditable="false" id="roadmap-period">Période : 16 juin → 30 juin 2026</span></span>
+      <span class="doc-meta-item"><i class="ti ti-building"></i> Siège</span>
+      <span class="doc-meta-item"><i class="ti ti-user"></i> Responsable direct : <span class="editable" contenteditable="false">Clément</span></span>
+    </div>
+  </div>
+
+  <!-- Rangée 1 : S1 + S2 -->
+  <div class="two-col" style="margin-bottom:14px;align-items:start">
+    <!-- S1 Objectifs -->
+    <div class="card" data-section="s1">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">1</div><p class="card-title">Objectifs du mois</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Préparer et structurer l'ensemble des actions d'acquisition pour le lancement officiel du 16 juin</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Lancer les appels étudiants sur les viviers des centres ciblés par Clément — objectif 15 RDV/semaine</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Démarrer la prospection médias pour Hugo et Axel — objectif : au moins 3 discussions en cours fin juin</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Planifier les 10 webinaires et construire le calendrier promotionnel complet</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Démarrer la production de contenus LinkedIn (Hugo + Axel) — 3 posts originaux/semaine par compte</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addDotRow(this)"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un objectif</button>
+      </div>
+    </div>
+    <!-- S2 Projets -->
+    <div class="card" data-section="s2">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">2</div><p class="card-title">Projets en cours ce mois</p></div>
+      <div class="card-body">
+        <p class="sublabel" style="margin-bottom:6px">Projets actifs</p>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Lancement</span><span class="item-text editable" contenteditable="false">Appels étudiants — démarrage le 16 juin, viviers HubSpot assignés par Clément</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Lancement</span><span class="item-text editable" contenteditable="false">LinkedIn (Hugo + Axel) — démarrage le 16 juin, contenus originaux + engagement quotidien</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Lancement</span><span class="item-text editable" contenteditable="false">Prospection médias — liste cibles + envoi pitchs personnalisés</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="divider"></div>
+        <p class="sublabel" style="margin-bottom:6px">En préparation</p>
+        <div class="item-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Planif.</span><span class="item-text editable" contenteditable="false">Calendrier des 10 webinaires + stratégie promotionnelle (1er webinaire dès juillet)</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Collab.</span><span class="item-text editable" contenteditable="false">HubSpot &amp; automatisation email avec Lorenzo — périmètre + séquences</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#F1EFE8;color:#444441">Support</span><span class="item-text editable" contenteditable="false">Gestion des demandes centres — traitement en continu, délai J+5</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#E6F1FB','#0C447C','Planif.')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un projet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rangée 2 : S3 + S4 -->
+  <div class="two-col" style="margin-bottom:14px;align-items:start">
+    <!-- S3 Priorités -->
+    <div class="card" data-section="s3">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">3</div><p class="card-title">Sujets prioritaires du mois</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Urgent</span><span class="item-text editable" contenteditable="false">Lancement des appels étudiants dès le 16 juin — premier levier d'acquisition immédiat</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Urgent</span><span class="item-text editable" contenteditable="false">Publication LinkedIn (Hugo + Axel) — démarrage le 16 juin, rythme 3 posts/semaine</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAECE7;color:#712B13">Important</span><span class="item-text editable" contenteditable="false">Prospection médias — 3 médias contactés, objectif : au moins 3 discussions en cours</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAECE7;color:#712B13">Important</span><span class="item-text editable" contenteditable="false">Planification calendrier des 10 webinaires + stratégie de promotion par session</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Secondaire</span><span class="item-text editable" contenteditable="false">Gestion des demandes des centres — délai J+5 max (affiches, signalétique, kakémono, pull, visuels, salons, formulaires)</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#EAF3DE','#27500A','Secondaire')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter une priorité</button>
+      </div>
+    </div>
+    <!-- S4 Échéances -->
+    <div class="card" data-section="s4">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">4</div><p class="card-title">Échéances importantes</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">16 juin</span><span class="item-text editable" contenteditable="false">Lancement officiel — appels étudiants + LinkedIn</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">16 juin</span><span class="item-text editable" contenteditable="false">Premiers appels sur les viviers assignés par Clément</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAEEDA;color:#633806">Semaine 2</span><span class="item-text editable" contenteditable="false">Premiers posts LinkedIn publiés — rythme de croisière 3/semaine par compte</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAEEDA;color:#633806">Semaine 2</span><span class="item-text editable" contenteditable="false">Premiers pitchs médias envoyés — au moins 3 médias contactés</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Fin juin</span><span class="item-text editable" contenteditable="false">Calendrier des 10 webinaires finalisé + landing pages prêtes pour le 1er</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">30 juin</span><span class="item-text editable" contenteditable="false">Bilan du mois de juin remis à Clément</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#FAEEDA','#633806','Date')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter une échéance</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rangée 3 : S5 + S6 -->
+  <div class="two-col" style="margin-bottom:14px;align-items:start">
+    <!-- S5 Formations -->
+    <div class="card" data-section="s5">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">5</div><p class="card-title">Formations &amp; montée en compétences</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Prise en main avancée de HubSpot — segmentation viviers, création de listes, mise à jour statuts</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Maîtrise de l'agenda partagé des directeurs pour la pose de RDV à distance</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Techniques de copywriting LinkedIn — posts courts, accroche efficace, storytelling</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addDotRow(this)"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter</button>
+      </div>
+    </div>
+    <!-- S6 Contrôles -->
+    <div class="card" data-section="s6">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">6</div><p class="card-title">Points de contrôle</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Hebdo</span><span class="item-text editable" contenteditable="false">Bilan appels : appels passés, RDV obtenus, taux de conversion — à remettre à Clément</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Hebdo</span><span class="item-text editable" contenteditable="false">Suivi LinkedIn : publications postées, taux d'engagement, connexions envoyées</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Mensuel</span><span class="item-text editable" contenteditable="false">Rapport médias : médias contactés / en discussion / confirmés</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Mensuel</span><span class="item-text editable" contenteditable="false">Rapport centres : demandes reçues / traitées / en cours</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#E6F1FB','#0C447C','Mensuel')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rangée 4 : S7 + S8 -->
+  <div class="two-col" style="margin-bottom:14px;align-items:start">
+    <!-- S7 Centres -->
+    <div class="card" data-section="s7">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">7</div><p class="card-title">Travaux en lien avec les centres</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Appels sur les viviers HubSpot des centres cibles assignés par Clément chaque semaine</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">Traitement des demandes de supports entrant dans un délai J+5</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <p class="sublabel" style="margin-top:10px;margin-bottom:6px">Types de demandes attendues</p>
+        <div class="tags">
+          <span class="tag" style="background:#EEEDFE;color:#3C3489">Affiches</span>
+          <span class="tag" style="background:#E6F1FB;color:#0C447C">Signalétique</span>
+          <span class="tag" style="background:#EAF3DE;color:#27500A">Kakémono</span>
+          <span class="tag" style="background:#FAEEDA;color:#633806">Pull FAsup'</span>
+          <span class="tag" style="background:#FAECE7;color:#712B13">Visuels recrutement</span>
+          <span class="tag" style="background:#F1EFE8;color:#444441">Salons étudiants</span>
+          <span class="tag" style="background:#E1F5EE;color:#085041">Formulaires</span>
+        </div>
+      </div>
+    </div>
+    <!-- S8 Collabs -->
+    <div class="card" data-section="s8">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">8</div><p class="card-title">Collaborations internes</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Lorenzo</span><span class="item-text editable" contenteditable="false">Design supports centres + setup HubSpot automation</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Clément</span><span class="item-text editable" contenteditable="false">Attribution hebdomadaire des centres cibles + information directeurs</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EEEDFE;color:#3C3489">Hugo / Axel</span><span class="item-text editable" contenteditable="false">Validation contenus LinkedIn, animation webinaires, interventions médias</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#F1EFE8;color:#444441">Sylvain</span><span class="item-text editable" contenteditable="false">Production des vidéos de promotion pour chaque webinaire</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#F1EFE8','#444441','Nom')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter une collaboration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rangée 5 : S9 + S10 -->
+  <div class="two-col" style="margin-bottom:14px;align-items:start">
+    <!-- S9 Vigilances -->
+    <div class="card" data-section="s9">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">9</div><p class="card-title">Points de vigilance &amp; difficultés anticipées</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="badge" style="background:#FAEEDA;color:#633806">Vigilance</span><span class="item-text editable" contenteditable="false">Premier webinaire impossible avant le 1er juillet : délai de promotion de 3 à 4 semaines incompressible</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAEEDA;color:#633806">Vigilance</span><span class="item-text editable" contenteditable="false">Disponibilité des agendas directeurs — blocages possibles en période de rush recrutement</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAEEDA;color:#633806">Vigilance</span><span class="item-text editable" contenteditable="false">Taux de réponse faible sur certains leads dormants HubSpot (leads anciens, messageries saturées)</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FAEEDA;color:#633806">Vigilance</span><span class="item-text editable" contenteditable="false">Prospection médias : délais de réponse longs — suivi rigoureux et relances nécessaires</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#FAEEDA','#633806','Vigilance')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un point de vigilance</button>
+      </div>
+    </div>
+    <!-- S10 Décisions -->
+    <div class="card" data-section="s10">
+      <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">10</div><p class="card-title">Besoins &amp; points de décision</p></div>
+      <div class="card-body">
+        <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Décision</span><span class="item-text editable" contenteditable="false">Choix de la plateforme de webinaire (Zoom, Livestorm, autre)</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#FCEBEB;color:#791F1F">Décision</span><span class="item-text editable" contenteditable="false">Validation des thématiques des 10 webinaires par Hugo et Axel</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <div class="item-row"><span class="badge" style="background:#EAF3DE;color:#27500A">Information</span><span class="item-text editable" contenteditable="false">Liste des postes à pourvoir par centre pour les offres LinkedIn</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addBadgeRow(this,'#FCEBEB','#791F1F','Décision')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rangée 6 : S11 pleine largeur -->
+  <div class="card" data-section="s11">
+    <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">11</div><p class="card-title">Indicateurs de performance</p></div>
+    <div class="card-body">
+      <div class="six-col">
+        <div class="kpi-card"><p class="kpi-label">LinkedIn</p><p class="kpi-value editable" contenteditable="false" style="color:#3C3489;font-size:28px;font-weight:800;margin:6px 0 4px">970</p><p class="kpi-sub editable" contenteditable="false">Connexions envoyées (2 comptes × ~70/sem × 7 sem)</p></div>
+        <div class="kpi-card"><p class="kpi-label">Publications</p><p class="kpi-value editable" contenteditable="false" style="color:#3C3489;font-size:28px;font-weight:800;margin:6px 0 4px">15/sem</p><p class="kpi-sub editable" contenteditable="false">Posts LinkedIn (3 originaux + 2 reposts × 2 comptes)</p></div>
+        <div class="kpi-card"><p class="kpi-label">RDV appels</p><p class="kpi-value editable" contenteditable="false" style="color:#0C447C;font-size:28px;font-weight:800;margin:6px 0 4px">6/sem</p><p class="kpi-sub editable" contenteditable="false">Demi-objectif juin (16→30 juin, 2 semaines effectives)</p></div>
+        <div class="kpi-card"><p class="kpi-label">Médias</p><p class="kpi-value editable" contenteditable="false" style="color:#27500A;font-size:28px;font-weight:800;margin:6px 0 4px">3</p><p class="kpi-sub editable" contenteditable="false">Discussions en cours d'ici fin juin (objectif minimum)</p></div>
+        <div class="kpi-card"><p class="kpi-label">Réponse centres</p><p class="kpi-value editable" contenteditable="false" style="color:#712B13;font-size:28px;font-weight:800;margin:6px 0 4px">J+5</p><p class="kpi-sub editable" contenteditable="false">Délai max de traitement des demandes entrantes</p></div>
+        <div class="kpi-card"><p class="kpi-label">Bilan mensuel</p><p class="kpi-value editable" contenteditable="false" style="color:#085041;font-size:28px;font-weight:800;margin:6px 0 4px">30/06</p><p class="kpi-sub editable" contenteditable="false">Remise du rapport de bilan à Clément</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB 3 — RÉSULTATS DU MOIS
+════════════════════════════════════════════ -->
+<div id="tab-results" class="tab-panel" data-save-key="results">
+
+  <div class="doc-header">
+    <div class="doc-badge">Résultats du mois</div>
+    <h1 class="doc-title" id="results-title">Résultats Juin 2026 — Théo Botella</h1>
+    <p class="doc-sub">Pôle Communication &amp; Acquisition — FAsup'</p>
+    <div class="doc-meta">
+      <span class="doc-meta-item"><i class="ti ti-calendar"></i> Bilan de fin de mois</span>
+      <span class="doc-meta-item"><i class="ti ti-building"></i> Siège</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <div class="card-header" style="background:#F9FAFB;border:0.5px solid #E5E7EB;border-radius:9px;margin-bottom:14px">
+      <div class="card-num" style="background:#EEEDFE;color:#3C3489">A</div>
+      <p class="card-title">Résultats KPIs — Cibles vs Réels</p>
+    </div>
+    <div class="result-grid">
+      <div class="result-card">
+        <p class="rc-label">LinkedIn — Connexions envoyées</p>
+        <p class="rc-target">Objectif : <strong>970</strong></p>
+        <input class="kpi-actual-input" type="text" placeholder="—" data-kpi="linkedin-connexions" oninput="updateBar(this,970)">
+        <div class="rc-bar"><div class="rc-fill" id="bar-linkedin-connexions" style="width:0%;background:#3C3489"></div></div>
+        <span class="rc-status" id="status-linkedin-connexions" style="background:#F3F4F6;color:#6B7280">En attente</span>
+      </div>
+      <div class="result-card">
+        <p class="rc-label">LinkedIn — Publications / semaine</p>
+        <p class="rc-target">Objectif : <strong>15/sem</strong></p>
+        <input class="kpi-actual-input" type="text" placeholder="—" data-kpi="linkedin-posts" oninput="updateBarText(this,'15')">
+        <div class="rc-bar"><div class="rc-fill" id="bar-linkedin-posts" style="width:0%;background:#3C3489"></div></div>
+        <span class="rc-status" id="status-linkedin-posts" style="background:#F3F4F6;color:#6B7280">En attente</span>
+      </div>
+      <div class="result-card">
+        <p class="rc-label">Appels — RDV / semaine</p>
+        <p class="rc-target">Objectif : <strong>6/sem</strong></p>
+        <input class="kpi-actual-input" type="text" placeholder="—" data-kpi="rdv" oninput="updateBarText(this,'6')">
+        <div class="rc-bar"><div class="rc-fill" id="bar-rdv" style="width:0%;background:#0C447C"></div></div>
+        <span class="rc-status" id="status-rdv" style="background:#F3F4F6;color:#6B7280">En attente</span>
+      </div>
+      <div class="result-card">
+        <p class="rc-label">Médias — Discussions en cours</p>
+        <p class="rc-target">Objectif : <strong>3 discussions</strong></p>
+        <input class="kpi-actual-input" type="text" placeholder="—" data-kpi="medias" oninput="updateBar(this,3)">
+        <div class="rc-bar"><div class="rc-fill" id="bar-medias" style="width:0%;background:#27500A"></div></div>
+        <span class="rc-status" id="status-medias" style="background:#F3F4F6;color:#6B7280">En attente</span>
+      </div>
+      <div class="result-card">
+        <p class="rc-label">Centres — Délai de traitement</p>
+        <p class="rc-target">Objectif : <strong>100% dans les J+5</strong></p>
+        <input class="kpi-actual-input" type="text" placeholder="ex: J+3" data-kpi="centres-delai">
+        <p class="rc-note editable" contenteditable="false" style="color:#6B7280;font-size:11.5px">Commentaire sur les délais observés</p>
+      </div>
+      <div class="result-card">
+        <p class="rc-label">Bilan remis à Clément</p>
+        <p class="rc-target">Objectif : <strong>avant le 30/06</strong></p>
+        <input class="kpi-actual-input" type="text" placeholder="Date de remise" data-kpi="bilan-date">
+        <p class="rc-note editable" contenteditable="false" style="color:#6B7280;font-size:11.5px">Commentaire sur la remise</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-num" style="background:#EAF3DE;color:#27500A">B</div><p class="card-title">Points forts du mois</p></div>
+      <div class="card-body" id="results-positifs">
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">À remplir en fin de mois</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addDotRow(this)"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un point fort</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-num" style="background:#FCEBEB;color:#791F1F">C</div><p class="card-title">Axes d'amélioration</p></div>
+      <div class="card-body" id="results-negatifs">
+        <div class="item-row"><span class="dot">·</span><span class="item-text editable" contenteditable="false">À remplir en fin de mois</span><button class="del-btn" onclick="delRow(this)">×</button></div>
+        <button class="add-row" onclick="addDotRow(this)"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un axe</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-num" style="background:#EEEDFE;color:#3C3489">D</div><p class="card-title">Bilan qualitatif du mois</p></div>
+    <div class="card-body">
+      <textarea class="bilan-area" id="bilan-text" placeholder="Écris ici ton bilan qualitatif du mois — ce qui s'est passé, les obstacles rencontrés, tes apprentissages, les décisions prises..." oninput="saveBilan()"></textarea>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Edit mode indicator -->
+<div class="edit-mode-indicator"><i class="ti ti-pencil"></i> Mode édition actif — les modifications sont sauvegardées automatiquement</div>
+
+<script>
+// ── State ──
+let editMode = false;
+const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+let currentMonth = 5; // 0-indexed, June = 5
+let currentYear = 2026;
+let currentTab = 'fiche';
+
+// ── Tab switching ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.tab')[['fiche','roadmap','results'].indexOf(tab)].classList.add('active');
+  const showMonthNav = tab === 'roadmap' || tab === 'results';
+  document.getElementById('month-nav').style.display = showMonthNav ? 'flex' : 'none';
+  if (showMonthNav) updateMonthDisplay();
+}
+
+// ── Month navigation ──
+function updateMonthDisplay() {
+  const label = MONTHS[currentMonth] + ' ' + currentYear;
+  document.getElementById('month-label').textContent = label;
+  if (document.getElementById('roadmap-title')) {
+    document.getElementById('roadmap-title').textContent = label + ' — Théo Botella';
+  }
+  if (document.getElementById('results-title')) {
+    document.getElementById('results-title').textContent = 'Résultats ' + label + ' — Théo Botella';
+  }
+  loadMonthData();
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  updateMonthDisplay();
+}
+
+function newMonth() {
+  const nextM = (currentMonth + 1) % 12;
+  const nextY = currentMonth === 11 ? currentYear + 1 : currentYear;
+  currentMonth = nextM;
+  currentYear = nextY;
+  updateMonthDisplay();
+  if (!editMode) toggleEdit();
+}
+
+function getMonthKey() {
+  return currentYear + '-' + String(currentMonth + 1).padStart(2,'0');
+}
+
+// ── Edit mode ──
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  document.getElementById('edit-label').textContent = editMode ? 'Terminer' : 'Modifier';
+  document.getElementById('edit-btn').classList.toggle('edit-active', editMode);
+  document.querySelectorAll('.editable').forEach(el => {
+    el.contentEditable = editMode ? 'true' : 'false';
+  });
+  if (!editMode) saveAll();
+}
+
+// ── Row management ──
+function delRow(btn) {
+  btn.closest('.item-row').remove();
+  saveAll();
+}
+
+function addDotRow(btn) {
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = '<span class="dot">·</span><span class="item-text editable" contenteditable="true">Nouveau point</span><button class="del-btn" onclick="delRow(this)">×</button>';
+  btn.parentNode.insertBefore(row, btn);
+  row.querySelector('.item-text').focus();
+}
+
+function addBadgeRow(btn, bg, color, label) {
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = `<span class="badge" style="background:${bg};color:${color}">${label}</span><span class="item-text editable" contenteditable="true">Nouveau point</span><button class="del-btn" onclick="delRow(this)">×</button>`;
+  btn.parentNode.insertBefore(row, btn);
+  row.querySelector('.item-text').focus();
+}
+
+// ── Auto-save on edit ──
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('editable') || e.target.classList.contains('item-text')) {
+    scheduleSave();
+  }
+});
+
+let saveTimer;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveAll(); showSaved(); }, 1000);
+}
+
+function showSaved() {
+  const ind = document.getElementById('autosave-indicator');
+  if (ind) { ind.style.display = 'inline'; setTimeout(() => { ind.style.display = 'none'; }, 2000); }
+}
+
+// ── Save / Load ──
+function saveAll() {
+  // Save fiche
+  const ficheData = {};
+  document.querySelectorAll('#tab-fiche .editable').forEach((el, i) => {
+    ficheData['el_' + i] = el.innerHTML;
+  });
+  localStorage.setItem('fasup_fiche', JSON.stringify(ficheData));
+
+  // Save roadmap for current month
+  const roadmapData = {};
+  document.querySelectorAll('#tab-roadmap [data-section]').forEach(section => {
+    roadmapData[section.dataset.section] = section.innerHTML;
+  });
+  roadmapData['period'] = document.getElementById('roadmap-period')?.innerHTML || '';
+  localStorage.setItem('fasup_roadmap_' + getMonthKey(), JSON.stringify(roadmapData));
+
+  // Save results
+  const resultsData = {};
+  document.querySelectorAll('#tab-results .kpi-actual-input').forEach(inp => {
+    resultsData['kpi_' + inp.dataset.kpi] = inp.value;
+  });
+  resultsData['bilan'] = document.getElementById('bilan-text')?.value || '';
+  document.querySelectorAll('#tab-results .editable').forEach((el, i) => {
+    resultsData['el_' + i] = el.innerHTML;
+  });
+  resultsData['positifs'] = document.getElementById('results-positifs')?.innerHTML || '';
+  resultsData['negatifs'] = document.getElementById('results-negatifs')?.innerHTML || '';
+  localStorage.setItem('fasup_results_' + getMonthKey(), JSON.stringify(resultsData));
+}
+
+function loadMonthData() {
+  // Load roadmap
+  const rm = localStorage.getItem('fasup_roadmap_' + getMonthKey());
+  if (rm) {
+    const d = JSON.parse(rm);
+    document.querySelectorAll('#tab-roadmap [data-section]').forEach(section => {
+      if (d[section.dataset.section]) section.innerHTML = d[section.dataset.section];
+    });
+    if (d.period && document.getElementById('roadmap-period')) {
+      document.getElementById('roadmap-period').innerHTML = d.period;
+    }
+  }
+
+  // Load results
+  const rs = localStorage.getItem('fasup_results_' + getMonthKey());
+  if (rs) {
+    const d = JSON.parse(rs);
+    document.querySelectorAll('#tab-results .kpi-actual-input').forEach(inp => {
+      if (d['kpi_' + inp.dataset.kpi]) inp.value = d['kpi_' + inp.dataset.kpi];
+    });
+    if (d.bilan) document.getElementById('bilan-text').value = d.bilan;
+    if (d.positifs) document.getElementById('results-positifs').innerHTML = d.positifs;
+    if (d.negatifs) document.getElementById('results-negatifs').innerHTML = d.negatifs;
+  }
+}
+
+function saveBilan() {
+  scheduleSave();
+}
+
+// ── KPI progress bars ──
+function updateBar(input, target) {
+  const val = parseFloat(input.value);
+  const key = input.dataset.kpi;
+  if (!isNaN(val)) {
+    const pct = Math.min(100, Math.round((val / target) * 100));
+    const bar = document.getElementById('bar-' + key);
+    const status = document.getElementById('status-' + key);
+    if (bar) bar.style.width = pct + '%';
+    if (status) setStatus(status, pct);
+  }
+  scheduleSave();
+}
+
+function updateBarText(input, targetStr) {
+  const val = parseFloat(input.value);
+  const target = parseFloat(targetStr);
+  if (!isNaN(val) && !isNaN(target)) updateBar({value: val, dataset: input.dataset}, target);
+  scheduleSave();
+}
+
+function setStatus(el, pct) {
+  if (pct >= 100) { el.style.background = '#EAF3DE'; el.style.color = '#27500A'; el.textContent = '✓ Objectif atteint'; }
+  else if (pct >= 70) { el.style.background = '#FAEEDA'; el.style.color = '#633806'; el.textContent = '~ En bonne voie (' + pct + '%)'; }
+  else { el.style.background = '#FCEBEB'; el.style.color = '#791F1F'; el.textContent = '↓ En dessous de l\'objectif (' + pct + '%)'; }
+}
+
+// ── Load fiche on boot ──
+window.addEventListener('load', () => {
+  const fd = localStorage.getItem('fasup_fiche');
+  if (fd) {
+    const d = JSON.parse(fd);
+    document.querySelectorAll('#tab-fiche .editable').forEach((el, i) => {
+      if (d['el_' + i]) el.innerHTML = d['el_' + i];
+    });
+  }
+  loadMonthData();
+});
+</script>
+</body>
+</html>
